@@ -1,17 +1,23 @@
+#Base dev Image
 FROM ubuntu:trusty
 
 RUN apt-get update
 RUN apt-get -y install npm git \
   python-dev python-virtualenv libffi-dev
 
+#Load Horizon Base
+RUN mkdir /opt/stack
+
+WORKDIR /opt/stack
+
 RUN git clone https://github.com/openstack/horizon.git
 
-ADD local_settings.py /horizon/openstack_dashboard/local/local_settings.py
+WORKDIR /opt/stack/horizon
 
-WORKDIR /horizon
+RUN git checkout stable/juno
 
 RUN ./run_tests.sh -V
 
-EXPOSE 8000
+ADD local_settings.py opt/stack/horizon/openstack_dashboard/local/local_settings.py
 
-ENTRYPOINT ["/horizon/run_tests.sh", "--runserver", "0.0.0.0:8000"]
+#ENTRYPOINT ["/horizon/run_tests.sh", "--runserver", "0.0.0.0:8000"] 
